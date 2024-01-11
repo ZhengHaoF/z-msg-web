@@ -1,87 +1,92 @@
 <template>
-  <a-row>
-    <a-col :span="5">
-      <div class="room-list">
-        <h2>
-          房间列表
-        </h2>
-        <div style="padding-bottom: 20px">
-          我的会话码：{{ myInfo.sessionCode }}
+
+  <div class="box">
+    <a-row style="height: 100%">
+      <a-col :lg="7" :md="7" :sm="24">
+        <div class="room-list">
+          <h2>
+            房间列表
+          </h2>
+          <div style="padding-bottom: 20px">
+            我的会话码：{{ myInfo.sessionCode }}
+          </div>
+          <br>
+          <div :class="{'room-options':true,'active':nowRoom['roomName'] === '世界房'}" @click="checkoutWord">
+            世界房
+          </div>
+          <div v-for="(item,index) in roomList"
+               :class="{'room-options':true,'active':nowRoom['roomName'] === item['roomName']}"
+               @click="checkoutRoom(index)">
+            <div>
+              <div style="height: 50px;">
+                <div style="float: left">
+                  {{ item['roomName'] }}
+                </div>
+                <div style="float: right;">
+                  <a-row>
+                    <a-col :span="12">
+                      <a-button danger shape="circle" type="primary"
+                                @click="delRoom(index)">
+                        <template #icon>
+                          <DeleteOutlined/>
+                        </template>
+                      </a-button>
+                    </a-col>
+                    <a-col :span="12">
+                      <a-button shape="circle"  type="primary" @click="shareRoom(index)">
+                        <template #icon>
+                          <ShareAltOutlined/>
+                        </template>
+                      </a-button>
+                    </a-col>
+                  </a-row>
+                </div>
+              </div>
+              <div style="padding-top: 10px;width: 100%">
+                <a-form>
+                  <a-form-item label="会话码">
+                    <a-input v-model:value="item['sessionCode']"
+                             @change="changeRoomCode(index,item['sessionCode'])"></a-input>
+                  </a-form-item>
+                </a-form>
+              </div>
+            </div>
+          </div>
+          <div>
+            <a-button type="primary" @click="addRoom">
+              创建房间
+            </a-button>
+            <a-button @click="importRoom">
+              一键导入对方房间
+            </a-button>
+          </div>
         </div>
-        <br>
-        <div :class="{'room-options':true,'active':nowRoom['roomName'] === '世界房'}" @click="checkoutWord">
-          世界房
-        </div>
-        <div v-for="(item,index) in roomList"
-             :class="{'room-options':true,'active':nowRoom['roomName'] === item['roomName']}"
-             @click="checkoutRoom(index)">
-          <a-row>
-            <a-col :span="18">
-              {{ item['roomName'] }}
-            </a-col>
-            <a-col :span="6">
-              <a-row>
-                <a-col :span="12">
-                  <a-button danger shape="circle" size="small" type="primary" @click="delRoom(index)">
-                    <template #icon>
-                      <DeleteOutlined/>
-                    </template>
-                  </a-button>
-                </a-col>
-                <a-col :span="12">
-                  <a-button shape="circle" size="small" type="primary" @click="shareRoom(index)">
-                    <template #icon>
-                      <ShareAltOutlined/>
-                    </template>
-                  </a-button>
-                </a-col>
-              </a-row>
-            </a-col>
-            <a-col style="padding-top: 10px;width: 100%">
-              <a-form>
-                <a-form-item label="会话码">
-                  <a-input v-model:value="item['sessionCode']"
-                           @change="changeRoomCode(index,item['sessionCode'])"></a-input>
-                </a-form-item>
-              </a-form>
-            </a-col>
-          </a-row>
-        </div>
-        <div>
-          <a-button type="primary" @click="addRoom">
-            创建房间
-          </a-button>
-          <a-button @click="importRoom">
-            一键导入对方房间
-          </a-button>
-        </div>
-      </div>
-    </a-col>
-    <a-col :span="19">
-      <div class="msg-box">
-        <div class="msg-title">
-          {{ nowRoom['roomName'] }}
-        </div>
-        <div class="msg-body">
-          <div v-for="(item,index) in nowRoom['msgInfo']"
-               :class="{'content-box':true,'get':item['type']==='get','send':item['type']==='send'}">
-            <div class="text">{{ item['msg'] }}</div>
+      </a-col>
+      <a-col :lg="17" :md="17" :sm="24">
+        <div class="msg-box">
+          <div class="msg-title">
+            {{ nowRoom['roomName'] }}
+          </div>
+          <div class="msg-body">
+            <div v-for="(item,index) in nowRoom['msgInfo']"
+                 :class="{'content-box':true,'get':item['type']==='get','send':item['type']==='send'}">
+              <div class="text">{{ item['msg'] }}</div>
+            </div>
+
+          </div>
+          <div class="msg-seng-box">
+            <a-input v-model:value="msgText" @keydown.enter="sendMsg">
+
+            </a-input>
+            <a-button type="primary" @click="sendMsg" style="margin-left: 20px">
+              发送
+            </a-button>
           </div>
 
         </div>
-        <div class="msg-seng-box">
-          <a-input v-model:value="msgText" @keydown.enter="sendMsg">
-
-          </a-input>
-        </div>
-        <div style="text-align: right;padding-top: 10px">
-          <a-button type="primary" @click="sendMsg">
-            发送
-          </a-button>
-        </div>
-      </div>
-    </a-col>
-  </a-row>
+      </a-col>
+    </a-row>
+  </div>
   <a-modal v-model:visible="addModal" title="添加房间" @ok="addOk">
     <a-form :label-col="{style: { width: '100px' }}">
       <a-form-item label="房间名">
@@ -95,7 +100,6 @@
       </a-form-item>
     </a-form>
   </a-modal>
-
   <a-modal v-model:visible="importRoomModal" title="导入房间" @ok="importRoomOk">
     <a-form :label-col="{style: { width: '100px' }}">
       <a-form-item label="导入分享码">
@@ -106,7 +110,6 @@
       </a-form-item>
     </a-form>
   </a-modal>
-
   <a-modal v-model:visible="shareCodeModal" title="分享" @ok="shareRoomOk">
     <a-form :label-col="{style: { width: '100px' }}">
       <a-form-item label="分享码">
@@ -347,9 +350,15 @@ const websocketclose = function (e) {
 </script>
 
 <style scoped>
-.room-list {
-  background-color: #e6f7ff;
+.box {
   height: 100%;
+  overflow-y: scroll;
+}
+
+.room-list {
+  width: 100%;
+  height: 100%;
+  background-color: #e6f7ff;
   padding: 20px;
 }
 
@@ -382,6 +391,7 @@ const websocketclose = function (e) {
 .msg-box {
   padding: 10px;
   height: 100%;
+  width: 100%;
 }
 
 .msg-title {
@@ -397,7 +407,7 @@ const websocketclose = function (e) {
 
 .msg-body {
   width: 100%;
-  height: 70vh;
+  height: 80vh;
   background-color: #f7fdff;
   margin-top: 5px;
   border: 1px solid #7dd6ff;
@@ -436,6 +446,11 @@ const websocketclose = function (e) {
 .msg-seng-box {
   padding-top: 5px;
   text-align: right;
+  width: 100%;
+  display: flex;
+}
+
+.ant-col {
   width: 100%;
 }
 </style>
